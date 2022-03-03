@@ -11,13 +11,16 @@ const start = async () => {
     const unreconciledRecords = recordService.getUnreconciledRecords(
       mismatchedRecords
     );
-    await recordService.writeReportStatement(unreconciledRecords);
-    await recordService.writeReportSummary(
+    const writerReportStatement = recordService.writeReportStatement(
+      unreconciledRecords
+    );
+    const writeReportSummary = recordService.writeReportSummary(
       bankRecords,
       proxyRecords,
       unreconciledRecords,
       mismatchedRecords
     );
+    await Promise.all([writerReportStatement, writeReportSummary]);
   } catch (e) {
     console.log(e);
   } finally {
