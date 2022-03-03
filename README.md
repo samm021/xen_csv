@@ -13,7 +13,7 @@
 - To install exact packages version
 `npm ci`
 
-- To create run then create report & summary : 
+- To run then create report & summary : 
 `npm start`
 
 - To compile to js : 
