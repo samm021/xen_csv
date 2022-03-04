@@ -3,7 +3,7 @@
 ## requirements
   - node v14.9.0
   - npm 6.14.8
-## dependecies
+## dependencies
   - lodash
   - csv-writer
   - csv-parser
