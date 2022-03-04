@@ -70,10 +70,10 @@ const getUnreconciledRecords = (
   let unreconciledRecords: IUnreconciledRecord[] = [];
   const validator =
     mismatchedRecords.fromProxy.length >= mismatchedRecords.fromBank.length;
-  const iterator = validator
+  const iterator: IBasicRecord[] = validator
     ? mismatchedRecords.fromProxy
     : mismatchedRecords.fromBank;
-  const filter = validator
+  const filter: IBasicRecord[] = validator
     ? mismatchedRecords.fromBank
     : mismatchedRecords.fromProxy;
 
