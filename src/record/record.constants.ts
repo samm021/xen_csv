@@ -15,3 +15,6 @@ export const writeHeaders = [
   { id: recordFormat.id, title: writeFormat.ID },
   { id: recordFormat.remarks, title: writeFormat.Remarks }
 ];
+
+export const distDir = '/dist/record';
+export const srcDir = '/src/record';

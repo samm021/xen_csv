@@ -7,7 +7,6 @@
   - lodash
   - csv-writer
   - csv-parser
-  - csv-write-stream
   
 # 
 - To install exact packages version

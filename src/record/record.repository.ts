@@ -7,13 +7,10 @@ import { ObjectStringifierHeader } from 'csv-writer/src/lib/record';
 
 import { IBasicRecord, IDateRange, IUnreconciledRecord } from './record.type';
 import recordUtil from './record.util';
+import { srcDir, distDir } from './record.constants';
 
 const getFilePath = (pathName: string): string => {
-  const dirname = __dirname
-    .replace('/src/record', '')
-    .replace('/dist/record', '');
-  path;
-
+  const dirname = __dirname.replace(srcDir, '').replace(distDir, '');
   return path.resolve(dirname, pathName);
 };
 

@@ -29,7 +29,6 @@
   },
   "dependencies": {
     "csv-parser": "^3.0.0",
-    "csv-write-stream": "^2.0.0",
     "csv-writer": "^1.6.0",
     "lodash": "^4.17.21"
   }
