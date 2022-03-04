@@ -1,6 +1,20 @@
 import { IDateRange, IUnreconciledRecord, IBasicRecord } from './record.type';
 import { readFormat, recordFormat, RECORD_CODE } from './record.enum';
 
+const validateData = (data: IBasicRecord): boolean => {
+  if (
+    data.id &&
+    data.amount &&
+    data.description &&
+    data.date &&
+    !isNaN(data.amount) &&
+    Date.parse(data.date)
+  ) {
+    return true;
+  }
+  return false;
+};
+
 const mapHeaders = (header: string): string => {
   header.trim();
   const lowerCaseHeader = header.toLowerCase();
@@ -58,6 +72,7 @@ const getErrors = (records: IUnreconciledRecord[]) => {
 };
 
 const recordUtil = {
+  validateData,
   filteredContentsByMonth,
   mapHeaders,
   getDateRange,

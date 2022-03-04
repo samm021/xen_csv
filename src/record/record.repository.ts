@@ -31,6 +31,9 @@ const getCSVFileContents = (fileNamePath: string): Promise<IBasicRecord[]> => {
       )
       .on('data', data => {
         const record = data as IBasicRecord;
+        if (!recordUtil.validateData(record)) {
+          reject('> Getting dirty data...');
+        }
         record.amount = Number(record.amount);
         results.push(record);
       })
