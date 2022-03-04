@@ -38,7 +38,6 @@ const start = async (month: number) => {
       )
     ]);
     console.log('> Writing report & summary...');
-    return;
   } catch (e) {
     console.log(e);
   } finally {
