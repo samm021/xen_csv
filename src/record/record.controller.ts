@@ -9,6 +9,12 @@ const start = async (month: number) => {
       recordService.getBankRecords(month),
       recordService.getProxyRecords(month)
     ]);
+    if (_.isEmpty(bankRecords) || _.isEmpty(proxyRecords)) {
+      console.info(
+        `> Source or proxy records has no record of month ${month}, exiting...`
+      );
+      return;
+    }
 
     console.info('> Getting mismatched records...');
     const mismatchedRecords = recordService.getMismatchedRecords(
@@ -16,7 +22,7 @@ const start = async (month: number) => {
       proxyRecords
     );
     if (
-      _.isEmpty(mismatchedRecords.fromBank) ||
+      _.isEmpty(mismatchedRecords.fromBank) &&
       _.isEmpty(mismatchedRecords.fromProxy)
     ) {
       console.info(

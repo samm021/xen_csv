@@ -114,8 +114,8 @@ const getUnreconciledRecords = (
       );
     }
   });
-  if (unreconciledRecords.length === 0) {
-    throw new Error('Failed to get unreconciled records');
+  if (_.isEmpty(unreconciledRecords)) {
+    throw new Error('Failed to map unreconciled records');
   }
   return unreconciledRecords;
 };
