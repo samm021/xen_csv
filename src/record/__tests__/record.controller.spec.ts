@@ -125,9 +125,9 @@ describe('recordController', () => {
       (recordService.getBankRecords as jest.Mock).mockResolvedValue(
         mockBankData
       );
-      (recordService.getProxyRecords as jest.Mock).mockResolvedValue([
+      (recordService.getProxyRecords as jest.Mock).mockResolvedValue(
         mockProxyData
-      ]);
+      );
       (recordService.getMismatchedRecords as jest.Mock).mockImplementation(
         () => mockMismatchData
       );
