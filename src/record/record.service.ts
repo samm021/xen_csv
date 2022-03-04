@@ -19,25 +19,28 @@ import { RecordDiscrepanciesList } from './record.error';
 import { RECORD_CODE } from './record.enum';
 import recordUtil from './record.util';
 
-const getData = async (path: string): Promise<IBasicRecord[]> => {
+const getData = async (
+  path: string,
+  month: number
+): Promise<IBasicRecord[]> => {
   const fileContents = await recordRepository.getCSVFileContents(path);
-  return fileContents;
+  return recordUtil.filteredContentsByMonth(fileContents, month);
 };
 
-const getBankRecords = async (): Promise<IBankRecord[]> => {
+const getBankRecords = async (month: number): Promise<IBankRecord[]> => {
   try {
     const sourceFilePath = recordRepository.getFilePath(sourcePath);
-    return getData(sourceFilePath);
+    return getData(sourceFilePath, month);
   } catch (e) {
     console.log(e);
     throw new Error('Failed to get bank records');
   }
 };
 
-const getProxyRecords = async (): Promise<IProxyRecord[]> => {
+const getProxyRecords = async (month: number): Promise<IProxyRecord[]> => {
   try {
     const proxyFilePath = recordRepository.getFilePath(proxyPath);
-    return getData(proxyFilePath);
+    return getData(proxyFilePath, month);
   } catch (e) {
     console.log(e);
     throw new Error('Failed to get proxy records');

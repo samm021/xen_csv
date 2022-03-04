@@ -1,3 +1,3 @@
 import start from './record/record.controller';
 
-start();
+start(7);

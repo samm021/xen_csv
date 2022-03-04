@@ -1,7 +1,7 @@
 import { IDateRange, IUnreconciledRecord, IBasicRecord } from './record.type';
 import { readFormat, recordFormat, RECORD_CODE } from './record.enum';
 
-const mapHeaders = (header: string) => {
+const mapHeaders = (header: string): string => {
   header.trim();
   const lowerCaseHeader = header.toLowerCase();
   switch (true) {
@@ -16,6 +16,15 @@ const mapHeaders = (header: string) => {
     default:
       return header;
   }
+};
+
+const filteredContentsByMonth = (
+  records: IBasicRecord[],
+  month: number
+): IBasicRecord[] => {
+  return records.filter(
+    record => new Date(record.date).getMonth() === month - 1
+  );
 };
 
 const getDateRange = (records: IBasicRecord[]): IDateRange => {
@@ -49,6 +58,7 @@ const getErrors = (records: IUnreconciledRecord[]) => {
 };
 
 const recordUtil = {
+  filteredContentsByMonth,
   mapHeaders,
   getDateRange,
   getText
