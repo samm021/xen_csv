@@ -15,7 +15,6 @@ import {
   IUnreconciledRecord,
   IMismatchedRecords
 } from './record.type';
-import { RecordDiscrepanciesList } from './record.error';
 import { RECORD_CODE } from './record.enum';
 import recordUtil from './record.util';
 
@@ -70,50 +69,49 @@ const getMismatchedRecords = (
 const getUnreconciledRecords = (
   mismatchedRecords: IMismatchedRecords
 ): IUnreconciledRecord[] => {
-  const unreconciledRecords: IUnreconciledRecord[] = [];
+  let unreconciledRecords: IUnreconciledRecord[] = [];
 
   mismatchedRecords.fromProxy.forEach(proxyRecord => {
     const bankRecord = mismatchedRecords.fromBank.filter(
       bankRecord => bankRecord.id == proxyRecord.id
     )[0];
     if (!bankRecord) {
-      unreconciledRecords.push({
-        ...proxyRecord,
-        discrepancyCode: RECORD_CODE.ID_NOT_FOUND,
-        remarks: RecordDiscrepanciesList[RECORD_CODE.ID_NOT_FOUND].message
-      });
+      unreconciledRecords = recordUtil.mapDiscrepansiesErrors(
+        unreconciledRecords,
+        proxyRecord,
+        RECORD_CODE.ID_NOT_FOUND
+      );
       return;
     }
     if (
       bankRecord.id == proxyRecord.id &&
       bankRecord.amount != proxyRecord.amount
     ) {
-      unreconciledRecords.push({
-        ...proxyRecord,
-        discrepancyCode: RECORD_CODE.AMOUNT_NOT_MATCHED,
-        remarks: RecordDiscrepanciesList[RECORD_CODE.AMOUNT_NOT_MATCHED].message
-      });
+      unreconciledRecords = recordUtil.mapDiscrepansiesErrors(
+        unreconciledRecords,
+        proxyRecord,
+        RECORD_CODE.AMOUNT_NOT_MATCHED
+      );
     }
     if (
       bankRecord.id == proxyRecord.id &&
       bankRecord.date != proxyRecord.date
     ) {
-      unreconciledRecords.push({
-        ...proxyRecord,
-        discrepancyCode: RECORD_CODE.DATE_NOT_MATCHED,
-        remarks: RecordDiscrepanciesList[RECORD_CODE.DATE_NOT_MATCHED].message
-      });
+      unreconciledRecords = recordUtil.mapDiscrepansiesErrors(
+        unreconciledRecords,
+        proxyRecord,
+        RECORD_CODE.DATE_NOT_MATCHED
+      );
     }
     if (
       bankRecord.id == proxyRecord.id &&
       bankRecord.description != proxyRecord.description
     ) {
-      unreconciledRecords.push({
-        ...proxyRecord,
-        discrepancyCode: RECORD_CODE.DESCRIPTION_NOT_MATCHED,
-        remarks:
-          RecordDiscrepanciesList[RECORD_CODE.DESCRIPTION_NOT_MATCHED].message
-      });
+      unreconciledRecords = recordUtil.mapDiscrepansiesErrors(
+        unreconciledRecords,
+        proxyRecord,
+        RECORD_CODE.DESCRIPTION_NOT_MATCHED
+      );
     }
   });
   if (unreconciledRecords.length === 0) {

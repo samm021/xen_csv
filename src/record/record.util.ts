@@ -1,5 +1,11 @@
-import { IDateRange, IUnreconciledRecord, IBasicRecord } from './record.type';
+import {
+  IDateRange,
+  IUnreconciledRecord,
+  IBasicRecord,
+  IProxyRecord
+} from './record.type';
 import { readFormat, recordFormat, RECORD_CODE } from './record.enum';
+import { RecordDiscrepanciesList } from './record.error';
 
 const validateData = (data: IBasicRecord): boolean => {
   if (
@@ -41,6 +47,19 @@ const filteredContentsByMonth = (
   );
 };
 
+const mapDiscrepansiesErrors = (
+  records: IUnreconciledRecord[],
+  proxyRecord: IProxyRecord,
+  code: RECORD_CODE
+) => {
+  records.push({
+    ...proxyRecord,
+    discrepancyCode: code,
+    remarks: RecordDiscrepanciesList[code].message
+  });
+  return records;
+};
+
 const getDateRange = (records: IBasicRecord[]): IDateRange => {
   const dates: Date[] = [];
   records.forEach(record => {
@@ -73,8 +92,9 @@ const getErrors = (records: IUnreconciledRecord[]) => {
 
 const recordUtil = {
   validateData,
-  filteredContentsByMonth,
   mapHeaders,
+  filteredContentsByMonth,
+  mapDiscrepansiesErrors,
   getDateRange,
   getText
 };
