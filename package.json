@@ -4,16 +4,21 @@
   "description": "csv & txt writer & reader",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/index.js",
     "prestart": "tsc",
     "result:delete:": "rm ./data/report.csv && rm ./data/summary.txt",
-    "result:open": "open ./data/proxy.csv && open ./data/summary.txt"
+    "result:open": "open ./data/proxy.csv && open ./data/summary.txt",
+    "test": "jest -w 1  --verbose ",
+    "test:cov": "npm run test -- --coverage"
   },
-  "keywords": ["test", "report"],
+  "keywords": [
+    "test",
+    "report"
+  ],
   "author": "Mohammed Ismail",
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^27.4.1",
     "@types/lodash": "^4.14.179",
     "@types/node": "^17.0.21",
     "jest": "^27.5.1",

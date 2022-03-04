@@ -11,14 +11,31 @@
   
 # 
 - To install exact packages version
-`npm ci`
+
+  `npm ci`
 
 - To run then create report & summary : 
-`npm start`
+
+  `npm start`
 
 - To compile to js : 
-`npm prestart`
+
+  `npm prestart`
 
 - To delete results:
-`npm run delete:result`
+
+  `npm run result:delete`
+
+- Report & summary can be opened with: 
+
+  `npm run result:open`
+
+- To run test: 
+
+  `npm run test`
+
+- To run test with coverage report: 
+
+  `npm run test:cov`
+
 

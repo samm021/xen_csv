@@ -70,9 +70,17 @@ const getUnreconciledRecords = (
   mismatchedRecords: IMismatchedRecords
 ): IUnreconciledRecord[] => {
   let unreconciledRecords: IUnreconciledRecord[] = [];
+  const validator =
+    mismatchedRecords.fromProxy.length >= mismatchedRecords.fromBank.length;
+  const iterator = validator
+    ? mismatchedRecords.fromProxy
+    : mismatchedRecords.fromBank;
+  const filter = validator
+    ? mismatchedRecords.fromBank
+    : mismatchedRecords.fromProxy;
 
-  mismatchedRecords.fromProxy.forEach(proxyRecord => {
-    const bankRecord = mismatchedRecords.fromBank.filter(
+  iterator.forEach(proxyRecord => {
+    const bankRecord = filter.filter(
       bankRecord => bankRecord.id == proxyRecord.id
     )[0];
     if (!bankRecord) {
@@ -114,9 +122,6 @@ const getUnreconciledRecords = (
       );
     }
   });
-  if (_.isEmpty(unreconciledRecords)) {
-    throw new Error('Failed to map unreconciled records');
-  }
   return unreconciledRecords;
 };
 

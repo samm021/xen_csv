@@ -32,9 +32,13 @@ const start = async (month: number) => {
     }
 
     console.info('> Calculating mismatched records...');
-    const unreconciledRecords = recordService.getUnreconciledRecords(
+    const unreconciledRecords = await recordService.getUnreconciledRecords(
       mismatchedRecords
     );
+    if (_.isEmpty(unreconciledRecords)) {
+      console.info('> Failed to map unreconciled records');
+      return;
+    }
 
     console.info('> Writing report & summary...');
     await Promise.all([
@@ -54,4 +58,6 @@ const start = async (month: number) => {
   }
 };
 
-export default start;
+const recordController = { start };
+
+export default recordController;

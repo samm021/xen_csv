@@ -9,7 +9,11 @@ import { IBasicRecord, IDateRange, IUnreconciledRecord } from './record.type';
 import recordUtil from './record.util';
 
 const getFilePath = (pathName: string): string => {
-  const dirname = __dirname.substring(0, __dirname.length - 12);
+  const dirname = __dirname
+    .replace('/src/record', '')
+    .replace('/dist/record', '');
+  path;
+
   return path.resolve(dirname, pathName);
 };
 

@@ -1,6 +1,5 @@
 module.exports = {
   roots: ['<rootDir>/src'],
-  setupFilesAfterEnv: ['<rootDir>/src/__jest__/setup.ts'],
   transform: {
     '^.+\\.ts$': 'ts-jest'
   },
@@ -11,13 +10,6 @@ module.exports = {
   globals: {
     'ts-jest': {
       diagnostics: false
-    }
-  },
-  coverageThreshold: {
-    global: {
-      branches: 90,
-      functions: 90,
-      lines: 90
     }
   },
   collectCoverageFrom: [

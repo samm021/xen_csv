@@ -1,3 +1,3 @@
-import start from './record/record.controller';
+import recordController from './record/record.controller';
 
-start(7);
+recordController.start(7);
