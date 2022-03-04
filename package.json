@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/index.js",
     "prestart": "tsc",
-    "delete:result": "rm ./data/report.csv && rm ./data/summary.txt"
+    "result:delete:": "rm ./data/report.csv && rm ./data/summary.txt",
+    "result:open": "open ./data/proxy.csv && open ./data/summary.txt"
   },
   "keywords": ["test", "report"],
   "author": "Mohammed Ismail",

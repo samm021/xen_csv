@@ -2,8 +2,12 @@ import recordService from './record.service';
 
 const start = async () => {
   try {
-    const bankRecords = await recordService.getBankRecords();
-    const proxyRecords = await recordService.getProxyRecords();
+    const [bankRecords, proxyRecords] = await Promise.all([
+      recordService.getBankRecords(),
+      recordService.getProxyRecords()
+    ]);
+    console.log('> Getting source & proxy records...');
+
     const mismatchedRecords = await recordService.getMismatchedRecords(
       bankRecords,
       proxyRecords
@@ -11,20 +15,22 @@ const start = async () => {
     const unreconciledRecords = recordService.getUnreconciledRecords(
       mismatchedRecords
     );
-    const writerReportStatement = recordService.writeReportStatement(
-      unreconciledRecords
-    );
-    const writeReportSummary = recordService.writeReportSummary(
-      bankRecords,
-      proxyRecords,
-      unreconciledRecords,
-      mismatchedRecords
-    );
-    await Promise.all([writerReportStatement, writeReportSummary]);
+    console.log('> Calculating mismatched records...');
+
+    await Promise.all([
+      recordService.writeReportStatement(unreconciledRecords),
+      recordService.writeReportSummary(
+        bankRecords,
+        proxyRecords,
+        unreconciledRecords,
+        mismatchedRecords
+      )
+    ]);
+    console.log('> Writing report & summary...');
   } catch (e) {
     console.log(e);
   } finally {
-    console.log('> Done processing data');
+    console.log('> Done processing data!');
   }
 };
 
