@@ -8,7 +8,7 @@ const start = async (month: number) => {
       recordService.getBankRecords(month),
       recordService.getProxyRecords(month)
     ]);
-    console.log('> Getting source & proxy records...');
+    console.info('> Getting source & proxy records...');
 
     const mismatchedRecords = recordService.getMismatchedRecords(
       bankRecords,
@@ -18,15 +18,16 @@ const start = async (month: number) => {
       _.isEmpty(mismatchedRecords.fromBank) ||
       _.isEmpty(mismatchedRecords.fromProxy)
     ) {
-      console.log(
+      console.info(
         '> Source & proxy records has no mismatched record, exiting...'
       );
       return;
     }
+
     const unreconciledRecords = recordService.getUnreconciledRecords(
       mismatchedRecords
     );
-    console.log('> Calculating mismatched records...');
+    console.info('> Calculating mismatched records...');
 
     await Promise.all([
       recordService.writeReportStatement(unreconciledRecords),
@@ -37,11 +38,11 @@ const start = async (month: number) => {
         mismatchedRecords
       )
     ]);
-    console.log('> Writing report & summary...');
+    console.info('> Writing report & summary...');
   } catch (e) {
-    console.log(e);
+    console.error(e);
   } finally {
-    console.log('> Done processing data!');
+    console.info('> Done processing data!');
   }
 };
 

@@ -32,7 +32,7 @@ const getBankRecords = async (month: number): Promise<IBankRecord[]> => {
     const sourceFilePath = recordRepository.getFilePath(sourcePath);
     return getData(sourceFilePath, month);
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw new Error('Failed to get bank records');
   }
 };
@@ -42,7 +42,7 @@ const getProxyRecords = async (month: number): Promise<IProxyRecord[]> => {
     const proxyFilePath = recordRepository.getFilePath(proxyPath);
     return getData(proxyFilePath, month);
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw new Error('Failed to get proxy records');
   }
 };
@@ -133,7 +133,7 @@ const writeReportStatement = async (
       reportFilePath
     );
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw new Error('Failed to write report statement');
   }
 };
@@ -159,7 +159,7 @@ const writeReportSummary = async (
       unReconsiledRecords
     );
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw new Error('Failed to write report summary');
   }
 };
