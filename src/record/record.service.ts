@@ -13,20 +13,18 @@ import {
   IBankRecord,
   IProxyRecord,
   IUnreconciledRecord,
-  IMismatchedRecords
+  IMismatchedRecords,
+  month
 } from './record.type';
 import { RECORD_CODE } from './record.enum';
 import recordUtil from './record.util';
 
-const getData = async (
-  path: string,
-  month: number
-): Promise<IBasicRecord[]> => {
+const getData = async (path: string, month: month): Promise<IBasicRecord[]> => {
   const fileContents = await recordRepository.getCSVFileContents(path);
   return recordUtil.filteredContentsByMonth(fileContents, month);
 };
 
-const getBankRecords = async (month: number): Promise<IBankRecord[]> => {
+const getBankRecords = async (month: month): Promise<IBankRecord[]> => {
   try {
     const sourceFilePath = recordRepository.getFilePath(sourcePath);
     return getData(sourceFilePath, month);
@@ -36,7 +34,7 @@ const getBankRecords = async (month: number): Promise<IBankRecord[]> => {
   }
 };
 
-const getProxyRecords = async (month: number): Promise<IProxyRecord[]> => {
+const getProxyRecords = async (month: month): Promise<IProxyRecord[]> => {
   try {
     const proxyFilePath = recordRepository.getFilePath(proxyPath);
     return getData(proxyFilePath, month);

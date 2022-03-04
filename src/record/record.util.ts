@@ -2,7 +2,8 @@ import {
   IDateRange,
   IUnreconciledRecord,
   IBasicRecord,
-  IProxyRecord
+  IProxyRecord,
+  month
 } from './record.type';
 import { readFormat, recordFormat, RECORD_CODE } from './record.enum';
 import { RecordDiscrepanciesList } from './record.error';
@@ -40,7 +41,7 @@ const mapHeaders = (header: string): string => {
 
 const filteredContentsByMonth = (
   records: IBasicRecord[],
-  month: number
+  month: month
 ): IBasicRecord[] => {
   return records.filter(
     record => new Date(record.date).getMonth() === month - 1
