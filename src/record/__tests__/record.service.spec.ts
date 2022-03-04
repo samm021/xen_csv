@@ -5,6 +5,10 @@ import { mockRecordData } from '../__mocks__/record.data';
 jest.mock('../record.repository');
 
 describe('recordService', () => {
+  beforeEach(() => {
+    expect.hasAssertions();
+    jest.resetAllMocks();
+  });
   describe('getBankRecords', () => {
     it('should get monthly bank data from file', async () => {
       // Given
