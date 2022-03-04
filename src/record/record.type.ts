@@ -1,5 +1,6 @@
 import { recordFormat, writeFormat, RECORD_CODE } from './record.enum';
 
+export type month = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 export interface IBasicRecord {
   id: string;
   description: string;

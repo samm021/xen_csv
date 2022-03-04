@@ -1,8 +1,9 @@
 import _ from 'lodash';
 
 import recordService from './record.service';
+import { month } from './record.type';
 
-const start = async (month: number) => {
+const start = async (month: month) => {
   try {
     console.info('> Getting source & proxy records...');
     const [bankRecords, proxyRecords] = await Promise.all([
