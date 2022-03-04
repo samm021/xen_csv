@@ -140,7 +140,7 @@ const writeReportSummary = async (
   proxyRecords: IProxyRecord[],
   unReconsiledRecords: IUnreconciledRecord[],
   mismatchedRecords: IMismatchedRecords
-) => {
+): Promise<void> => {
   try {
     const dateRange = recordUtil.getDateRange([
       ...bankRecords,

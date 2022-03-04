@@ -8,7 +8,7 @@ import { ObjectStringifierHeader } from 'csv-writer/src/lib/record';
 import { IBasicRecord, IDateRange, IUnreconciledRecord } from './record.type';
 import recordUtil from './record.util';
 
-const getFilePath = (pathName: string) => {
+const getFilePath = (pathName: string): string => {
   const dirname = __dirname.substring(0, __dirname.length - 12);
   return path.resolve(dirname, pathName);
 };
@@ -59,17 +59,21 @@ const writeTextFileContents = (
   fileNamePath: string,
   dateRange: IDateRange,
   processedSource: number,
-  unReconsiledRecords: IUnreconciledRecord[]
-) => {
-  fs.writeFile(
-    fileNamePath,
-    recordUtil.getText(dateRange, processedSource, unReconsiledRecords),
-    e => {
-      if (e) {
-        throw new Error('Failed to write summary file');
+  unReconciledRecords: IUnreconciledRecord[]
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(
+      fileNamePath,
+      recordUtil.getText(dateRange, processedSource, unReconciledRecords),
+      e => {
+        if (e) {
+          reject(e);
+          return;
+        }
+        resolve();
       }
-    }
-  );
+    );
+  });
 };
 
 const recordRepository = {
