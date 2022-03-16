@@ -1,36 +1,26 @@
-import _ from 'lodash';
-
-import recordService from './record.service';
 import { month } from './record.type';
+import recordService from './record.service';
+import { reportError } from '../errors/errors';
 
-const createReportAndSummary = async (month: month) => {
+const createReportAndSummary = async (
+  month: month,
+  bankFilename: string,
+  userFilename: string
+) => {
   try {
-    const [bankRecords, proxyRecords] = await recordService.getBankProxyRecords(
-      month
-    );
-
-    const mismatchedRecords = recordService.getMismatchedRecords(
-      bankRecords,
-      proxyRecords
-    );
-
-    const unreconciledRecords = await recordService.getUnreconciledRecords(
-      mismatchedRecords
-    );
-
-    await recordService.writeReports(
-      bankRecords,
-      proxyRecords,
-      unreconciledRecords,
-      mismatchedRecords
+    await recordService.createReportAndSummary(
+      month,
+      bankFilename,
+      userFilename
     );
     console.info('> Done processing data!');
   } catch (e) {
-    console.error(e);
-    console.info('> Getting errors when processing data, exiting...');
+    reportError(e);
   }
 };
 
-const recordController = { createReportAndSummary };
+const recordController = {
+  createReportAndSummary
+};
 
 export default recordController;

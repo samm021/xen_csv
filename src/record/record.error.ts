@@ -1,7 +1,10 @@
 import { RECORD_CODE } from './record.enum';
 
 const RecordDiscrepanciesList = {
-  [RECORD_CODE.ID_NOT_FOUND]: {
+  [RECORD_CODE.ID_NOT_FOUND_IN_USER]: {
+    message: 'ID not found in user statement'
+  },
+  [RECORD_CODE.ID_NOT_FOUND_IN_BANK]: {
     message: 'ID not found in bank statement'
   },
   [RECORD_CODE.AMOUNT_NOT_MATCHED]: {

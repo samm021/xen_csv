@@ -1,5 +1,10 @@
 date: 7/1/2021 - 7/31/2021 
+  
 processed source data: 4 
-dicrepansies: 3 records with errors 
- - 1 ID not found in bank statement
- - 2 Amount not matched with bank statement record
+  
+dicrepansies: 3 discrepancies 
+ - 1 ID not found in bank statement 
+	 - zodo
+ - 2 Amount not matched with bank statement record 
+	 - zojm
+	 - zoml

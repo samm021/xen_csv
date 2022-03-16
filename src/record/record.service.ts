@@ -1,201 +1,118 @@
 import _ from 'lodash';
-
-import recordRepository from './record.repository';
-import {
-  sourcePath,
-  proxyPath,
-  writeHeaders,
-  reportPath,
-  summaryPath
-} from './record.constants';
+import { writeHeaders, reportPath, summaryPath } from './record.constants';
 import {
   IBasicRecord,
   IBankRecord,
-  IProxyRecord,
+  IUserRecord,
   IUnreconciledRecord,
   IMismatchedRecords,
   month
 } from './record.type';
-import { RECORD_CODE } from './record.enum';
 import recordUtil from './record.util';
+import csvRepository from '../csv/csv.repository';
+import textRepository from '../text/text.repository';
+import { ERROR_CODE } from '../errors/errors.enum';
 
 const getData = async (path: string, month: month): Promise<IBasicRecord[]> => {
-  const fileContents = await recordRepository.getCSVFileContents(path);
+  const fileContents = (await csvRepository.getCSVFileContents(
+    path,
+    recordUtil.mapHeaders,
+    recordUtil.validateData
+  )) as IBasicRecord[];
   return recordUtil.filteredContentsByMonth(fileContents, month);
 };
 
-const getBankRecords = async (month: month): Promise<IBankRecord[]> => {
+const getBankRecords = async (
+  month: month,
+  bankFilename: string
+): Promise<IBankRecord[]> => {
   try {
-    const sourceFilePath = recordRepository.getFilePath(sourcePath);
+    const sourceFilePath = recordUtil.getFilePath(bankFilename);
     return getData(sourceFilePath, month);
   } catch (e) {
-    console.error(e);
-    throw new Error('Failed to get bank records');
+    throw new Error(ERROR_CODE.FAILED_TO_GET_BANK_RECORDS);
   }
 };
 
-const getProxyRecords = async (month: month): Promise<IProxyRecord[]> => {
+const getUserRecords = async (
+  month: month,
+  userFilename: string
+): Promise<IUserRecord[]> => {
   try {
-    const proxyFilePath = recordRepository.getFilePath(proxyPath);
-    return getData(proxyFilePath, month);
+    const userFilePath = recordUtil.getFilePath(userFilename);
+    return getData(userFilePath, month);
   } catch (e) {
-    console.error(e);
-    throw new Error('Failed to get proxy records');
+    throw new Error(ERROR_CODE.FAILED_TO_GET_USER_RECORDS);
   }
-};
-
-const getBankProxyRecords = async (
-  month: month
-): Promise<[IBankRecord[], IProxyRecord[]]> => {
-  console.info('> Getting source & proxy records...');
-  return await Promise.all([getBankRecords(month), getProxyRecords(month)]);
-};
-
-const getMismatchedRecords = (
-  bankStatement: IBankRecord[],
-  userStatement: IProxyRecord[]
-): IMismatchedRecords => {
-  console.info('> Getting mismatched records...');
-  const rightUniqueEntries = _.differenceWith(
-    bankStatement,
-    userStatement,
-    _.isEqual
-  );
-  const leftUniqueEntries = _.differenceWith(
-    userStatement,
-    bankStatement,
-    _.isEqual
-  );
-  const mismatchedRecords = {
-    fromBank: rightUniqueEntries,
-    fromProxy: leftUniqueEntries
-  };
-  if (
-    _.isEmpty(mismatchedRecords.fromBank) &&
-    _.isEmpty(mismatchedRecords.fromProxy)
-  ) {
-    console.info('> Source & proxy records has no mismatched record');
-  }
-  return mismatchedRecords;
-};
-
-const getUnreconciledRecords = (
-  mismatchedRecords: IMismatchedRecords
-): IUnreconciledRecord[] => {
-  console.info('> Calculating mismatched records...');
-  let unreconciledRecords: IUnreconciledRecord[] = [];
-  const validator =
-    mismatchedRecords.fromProxy.length >= mismatchedRecords.fromBank.length;
-  const iterator: IBasicRecord[] = validator
-    ? mismatchedRecords.fromProxy
-    : mismatchedRecords.fromBank;
-  const filter: IBasicRecord[] = validator
-    ? mismatchedRecords.fromBank
-    : mismatchedRecords.fromProxy;
-
-  iterator.forEach(proxyRecord => {
-    const bankRecord = filter.filter(
-      bankRecord => bankRecord.id == proxyRecord.id
-    )[0];
-    if (!bankRecord) {
-      unreconciledRecords = recordUtil.mapDiscrepansiesErrors(
-        unreconciledRecords,
-        proxyRecord,
-        RECORD_CODE.ID_NOT_FOUND
-      );
-      return;
-    }
-    if (
-      bankRecord.id == proxyRecord.id &&
-      bankRecord.amount != proxyRecord.amount
-    ) {
-      unreconciledRecords = recordUtil.mapDiscrepansiesErrors(
-        unreconciledRecords,
-        proxyRecord,
-        RECORD_CODE.AMOUNT_NOT_MATCHED
-      );
-    }
-    if (
-      bankRecord.id == proxyRecord.id &&
-      bankRecord.date != proxyRecord.date
-    ) {
-      unreconciledRecords = recordUtil.mapDiscrepansiesErrors(
-        unreconciledRecords,
-        proxyRecord,
-        RECORD_CODE.DATE_NOT_MATCHED
-      );
-    }
-    if (
-      bankRecord.id == proxyRecord.id &&
-      bankRecord.description != proxyRecord.description
-    ) {
-      unreconciledRecords = recordUtil.mapDiscrepansiesErrors(
-        unreconciledRecords,
-        proxyRecord,
-        RECORD_CODE.DESCRIPTION_NOT_MATCHED
-      );
-    }
-  });
-  if (_.isEmpty(unreconciledRecords)) {
-    console.info('> Failed to map unreconciled records');
-  }
-  return unreconciledRecords;
 };
 
 const writeReportStatement = async (
   records: IUnreconciledRecord[]
 ): Promise<void> => {
+  if (_.isEmpty(records)) {
+    return;
+  }
   try {
-    const reportFilePath = recordRepository.getFilePath(reportPath);
-    await recordRepository.writeCSVFileContents(
+    const reportFilePath = recordUtil.getFilePath(reportPath);
+    await csvRepository.writeCSVFileContents(
       records,
       writeHeaders,
       reportFilePath
     );
   } catch (e) {
-    console.error(e);
-    throw new Error('Failed to write report statement');
+    throw new Error(ERROR_CODE.FAILED_TO_WRITE_STATEMENT);
   }
 };
 
 const writeReportSummary = async (
   bankRecords: IBankRecord[],
-  proxyRecords: IProxyRecord[],
-  unReconsiledRecords: IUnreconciledRecord[],
+  userRecords: IUserRecord[],
+  unreconciledRecords: IUnreconciledRecord[],
   mismatchedRecords: IMismatchedRecords
 ): Promise<void> => {
+  const dateRange = recordUtil.getDateRange([...bankRecords, ...userRecords]);
+
+  const numberSourceProcessed =
+    bankRecords.length - mismatchedRecords.fromBank.length;
+
+  const processedText = recordUtil.getText(
+    dateRange,
+    numberSourceProcessed,
+    unreconciledRecords
+  );
+
   try {
-    const dateRange = recordUtil.getDateRange([
-      ...bankRecords,
-      ...proxyRecords
-    ]);
-    const numberSourceProcessed =
-      bankRecords.length - mismatchedRecords.fromBank.length;
-    const summaryFilepath = recordRepository.getFilePath(summaryPath);
-    await recordRepository.writeTextFileContents(
-      summaryFilepath,
-      dateRange,
-      numberSourceProcessed,
-      unReconsiledRecords
-    );
+    const summaryFilepath = recordUtil.getFilePath(summaryPath);
+    await textRepository.writeTextFileContents(summaryFilepath, processedText);
   } catch (e) {
-    console.error(e);
-    throw new Error('Failed to write report summary');
+    throw new Error(ERROR_CODE.FAILED_TO_WRITE_SUMMARY);
   }
 };
 
-const writeReports = async (
-  bankRecords: IBankRecord[],
-  proxyRecords: IProxyRecord[],
-  unreconciledRecords: IUnreconciledRecord[],
-  mismatchedRecords: IMismatchedRecords
+const createReportAndSummary = async (
+  month: month,
+  bankFilename: string,
+  userFilename: string
 ) => {
-  console.info('> Writing report & summary...');
-  return Promise.all([
+  const [bankRecords, userRecords] = await Promise.all([
+    getBankRecords(month, bankFilename),
+    getUserRecords(month, userFilename)
+  ]);
+
+  const mismatchedRecords = recordUtil.getMismatchedRecords(
+    bankRecords,
+    userRecords
+  );
+
+  const unreconciledRecords = recordUtil.getUnreconciledRecords(
+    mismatchedRecords
+  );
+
+  await Promise.all([
     writeReportStatement(unreconciledRecords),
     writeReportSummary(
       bankRecords,
-      proxyRecords,
+      userRecords,
       unreconciledRecords,
       mismatchedRecords
     )
@@ -203,10 +120,7 @@ const writeReports = async (
 };
 
 const recordService = {
-  getBankProxyRecords,
-  getMismatchedRecords,
-  getUnreconciledRecords,
-  writeReports
+  createReportAndSummary
 };
 
 export default recordService;

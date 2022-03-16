@@ -10,7 +10,7 @@ export interface IBasicRecord {
 
 export interface IBankRecord extends IBasicRecord {}
 
-export interface IProxyRecord extends IBasicRecord {}
+export interface IUserRecord extends IBasicRecord {}
 
 export interface IUnreconciledRecord extends IBasicRecord {
   remarks: string;
@@ -19,7 +19,7 @@ export interface IUnreconciledRecord extends IBasicRecord {
 
 export interface IMismatchedRecords {
   fromBank: IBankRecord[];
-  fromProxy: IProxyRecord[];
+  fromUser: IUserRecord[];
 }
 
 export interface IWriteHeader {
@@ -35,4 +35,5 @@ export interface IDateRange {
 export interface IErrorMapping {
   discrepancyCode: RECORD_CODE;
   amount: number;
+  ids: string[];
 }

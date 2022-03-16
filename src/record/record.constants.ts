@@ -1,12 +1,9 @@
 import { recordFormat, writeFormat } from './record.enum';
 
-export const sourcePath = 'data/source.csv';
-
-export const proxyPath = 'data/proxy.csv';
-
-export const reportPath = 'data/report.csv';
-
-export const summaryPath = 'data/summary.txt';
+export const reportPath = 'report.csv';
+export const summaryPath = 'summary.txt';
+export const distDir = '/dist/record';
+export const srcDir = '/src/record';
 
 export const writeHeaders = [
   { id: recordFormat.amount, title: writeFormat.Amt },
@@ -15,6 +12,3 @@ export const writeHeaders = [
   { id: recordFormat.id, title: writeFormat.ID },
   { id: recordFormat.remarks, title: writeFormat.Remarks }
 ];
-
-export const distDir = '/dist/record';
-export const srcDir = '/src/record';

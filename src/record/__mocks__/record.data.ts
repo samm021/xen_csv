@@ -9,12 +9,12 @@ export const mockRecordData = [
 
 export const emptyMismatch = {
   fromBank: [],
-  fromProxy: []
+  fromUser: []
 };
 
 export const mockMismatchData = {
   fromBank: [mockRecordData[0]],
-  fromProxy: [mockRecordData[1]]
+  fromUser: [mockRecordData[1]]
 };
 
 export const mockUnreconciledData = [
