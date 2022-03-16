@@ -1,9 +1,11 @@
+import _ from 'lodash';
 import {
   IDateRange,
   IUnreconciledRecord,
   IBasicRecord,
   IProxyRecord,
-  month
+  month,
+  IErrorMapping
 } from './record.type';
 import { readFormat, recordFormat, RECORD_CODE } from './record.enum';
 import { RecordDiscrepanciesList } from './record.error';
@@ -85,9 +87,18 @@ const getText = (
 
 const getErrors = (records: IUnreconciledRecord[]) => {
   let errorString: string = '';
-  records.forEach(record => {
-    errorString += `\n - ${RECORD_CODE[record.discrepancyCode]}`;
+
+  const mappedRecords: IErrorMapping[] = _(records)
+    .groupBy('discrepancyCode')
+    .map((v, k) => ({ discrepancyCode: k, amount: v.length } as IErrorMapping))
+    .value();
+
+  mappedRecords.forEach(record => {
+    errorString += `\n - ${record.amount} ${
+      RecordDiscrepanciesList[record.discrepancyCode].message
+    }`;
   });
+
   return errorString;
 };
 

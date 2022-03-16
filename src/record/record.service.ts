@@ -44,10 +44,18 @@ const getProxyRecords = async (month: month): Promise<IProxyRecord[]> => {
   }
 };
 
+const getBankProxyRecords = async (
+  month: month
+): Promise<[IBankRecord[], IProxyRecord[]]> => {
+  console.info('> Getting source & proxy records...');
+  return await Promise.all([getBankRecords(month), getProxyRecords(month)]);
+};
+
 const getMismatchedRecords = (
   bankStatement: IBankRecord[],
   userStatement: IProxyRecord[]
 ): IMismatchedRecords => {
+  console.info('> Getting mismatched records...');
   const rightUniqueEntries = _.differenceWith(
     bankStatement,
     userStatement,
@@ -58,15 +66,23 @@ const getMismatchedRecords = (
     bankStatement,
     _.isEqual
   );
-  return {
+  const mismatchedRecords = {
     fromBank: rightUniqueEntries,
     fromProxy: leftUniqueEntries
   };
+  if (
+    _.isEmpty(mismatchedRecords.fromBank) &&
+    _.isEmpty(mismatchedRecords.fromProxy)
+  ) {
+    console.info('> Source & proxy records has no mismatched record');
+  }
+  return mismatchedRecords;
 };
 
 const getUnreconciledRecords = (
   mismatchedRecords: IMismatchedRecords
 ): IUnreconciledRecord[] => {
+  console.info('> Calculating mismatched records...');
   let unreconciledRecords: IUnreconciledRecord[] = [];
   const validator =
     mismatchedRecords.fromProxy.length >= mismatchedRecords.fromBank.length;
@@ -120,6 +136,9 @@ const getUnreconciledRecords = (
       );
     }
   });
+  if (_.isEmpty(unreconciledRecords)) {
+    console.info('> Failed to map unreconciled records');
+  }
   return unreconciledRecords;
 };
 
@@ -165,13 +184,29 @@ const writeReportSummary = async (
   }
 };
 
+const writeReports = async (
+  bankRecords: IBankRecord[],
+  proxyRecords: IProxyRecord[],
+  unreconciledRecords: IUnreconciledRecord[],
+  mismatchedRecords: IMismatchedRecords
+) => {
+  console.info('> Writing report & summary...');
+  return Promise.all([
+    writeReportStatement(unreconciledRecords),
+    writeReportSummary(
+      bankRecords,
+      proxyRecords,
+      unreconciledRecords,
+      mismatchedRecords
+    )
+  ]);
+};
+
 const recordService = {
-  getBankRecords,
-  getProxyRecords,
+  getBankProxyRecords,
   getMismatchedRecords,
   getUnreconciledRecords,
-  writeReportStatement,
-  writeReportSummary
+  writeReports
 };
 
 export default recordService;

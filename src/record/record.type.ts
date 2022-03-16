@@ -31,3 +31,8 @@ export interface IDateRange {
   from: Date;
   to: Date;
 }
+
+export interface IErrorMapping {
+  discrepancyCode: RECORD_CODE;
+  amount: number;
+}
