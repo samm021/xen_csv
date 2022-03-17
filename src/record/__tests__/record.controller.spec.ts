@@ -1,151 +1,46 @@
-// import recordController from '../record.controller';
-// import recordService from '../record.service';
-// import {
-//   mockRecordData,
-//   emptyMismatch,
-//   mockMismatchData,
-//   mockUnreconciledData
-// } from '../__mocks__/record.data';
+import recordController from '../record.controller';
+import recordService from '../record.service';
+import { ERROR_CODE } from '../../errors/errors.enum';
 
-// jest.mock('../record.service');
-// jest.mock('../record.repository');
+jest.mock('../record.service');
 
-// describe('recordController', () => {
-//   const mockBankData = [mockRecordData[0]];
-//   const mockProxyData = [mockRecordData[1]];
-//   beforeEach(() => {
-//     expect.hasAssertions();
-//     jest.resetAllMocks();
-//   });
+describe('recordController', () => {
+  const month = 2;
 
-//   describe('createReportAndSummary', () => {
-//     it('process should stop after get bank/proxy records return empty', async () => {
-//       // Given
-//       (recordService.getBankRecords as jest.Mock).mockResolvedValue([]);
-//       (recordService.getProxyRecords as jest.Mock).mockResolvedValue([]);
+  beforeEach(() => {
+    expect.hasAssertions();
+    jest.resetAllMocks();
+  });
 
-//       // When
-//       await recordController.createReportAndSummary(2);
+  describe('createReportAndSummary', () => {
+    it('process should call createReportAndSummary in service', async () => {
+      // Given
+      (recordService.createReportAndSummary as jest.Mock).mockResolvedValueOnce(
+        null
+      );
 
-//       // Then
-//       expect(recordService.getBankRecords).toBeCalledTimes(1);
-//       expect(recordService.getProxyRecords).toBeCalledTimes(1);
-//       expect(recordService.getMismatchedRecords).not.toBeCalled();
-//       expect(recordService.getUnreconciledRecords).not.toBeCalled();
-//       expect(recordService.writeReportStatement).not.toBeCalled();
-//       expect(recordService.writeReportSummary).not.toBeCalled();
-//     });
+      // When
+      await recordController.createReportAndSummary(month, '', '');
 
-//     it('process should stop after get mismatched records return empty', async () => {
-//       // Given
-//       (recordService.getBankRecords as jest.Mock).mockResolvedValue(
-//         mockBankData
-//       );
-//       (recordService.getProxyRecords as jest.Mock).mockResolvedValue(
-//         mockProxyData
-//       );
-//       (recordService.getMismatchedRecords as jest.Mock).mockImplementation(
-//         () => emptyMismatch
-//       );
+      // Then
+      expect(recordService.createReportAndSummary).toBeCalledTimes(1);
+    });
 
-//       // When
-//       await recordController.createReportAndSummary(7);
+    it('process catch error if createReportAndSummary service returns error', async () => {
+      // Given
+      (recordService.createReportAndSummary as jest.Mock).mockRejectedValueOnce(
+        new Error(ERROR_CODE.DIRTY_DATA)
+      );
 
-//       // Then
-//       expect(recordService.getBankRecords).toBeCalledTimes(1);
-//       expect(recordService.getProxyRecords).toBeCalledTimes(1);
-//       expect(recordService.getMismatchedRecords).toBeCalledTimes(1);
-//       expect(recordService.getUnreconciledRecords).not.toBeCalled();
-//       expect(recordService.writeReportStatement).not.toBeCalled();
-//       expect(recordService.writeReportSummary).not.toBeCalled();
-//     });
+      // When
+      await recordController.createReportAndSummary(month, '', '').catch(e => {
+        expect((e as Error).message).toContain(
+          ERROR_CODE.DIRTY_DATA.toString()
+        );
+      });
 
-//     it('process should stop after get unreconciled records throws error', async () => {
-//       // Given
-//       (recordService.getBankRecords as jest.Mock).mockResolvedValue(
-//         mockBankData
-//       );
-//       (recordService.getProxyRecords as jest.Mock).mockResolvedValue(
-//         mockProxyData
-//       );
-//       (recordService.getMismatchedRecords as jest.Mock).mockImplementation(
-//         () => mockMismatchData
-//       );
-
-//       (recordService.getUnreconciledRecords as jest.Mock).mockImplementation(
-//         () => new Error()
-//       );
-
-//       // When
-//       await recordController.createReportAndSummary(4);
-
-//       // Then
-//       expect(recordService.getBankRecords).toBeCalledTimes(1);
-//       expect(recordService.getProxyRecords).toBeCalledTimes(1);
-//       expect(recordService.getMismatchedRecords).toBeCalledTimes(1);
-//       expect(recordService.getUnreconciledRecords).toBeCalledTimes(1);
-//       expect(recordService.writeReportStatement).not.toBeCalled();
-//       expect(recordService.writeReportSummary).not.toBeCalled();
-//     });
-
-//     it('process should stop after get write report/summary throws error', async () => {
-//       // Given
-//       (recordService.getBankRecords as jest.Mock).mockResolvedValue(
-//         mockBankData
-//       );
-//       (recordService.getProxyRecords as jest.Mock).mockResolvedValue(
-//         mockProxyData
-//       );
-//       (recordService.getMismatchedRecords as jest.Mock).mockImplementation(
-//         () => mockMismatchData
-//       );
-//       (recordService.getUnreconciledRecords as jest.Mock).mockImplementation(
-//         () => mockUnreconciledData
-//       );
-//       (recordService.writeReportStatement as jest.Mock).mockRejectedValue(
-//         new Error()
-//       );
-//       (recordService.writeReportSummary as jest.Mock).mockRejectedValue(
-//         new Error()
-//       );
-
-//       // When
-//       await recordController.createReportAndSummary(4);
-
-//       // Then
-//       expect(recordService.getBankRecords).toBeCalledTimes(1);
-//       expect(recordService.getProxyRecords).toBeCalledTimes(1);
-//       expect(recordService.getMismatchedRecords).toBeCalledTimes(1);
-//       expect(recordService.writeReportStatement).toBeCalledTimes(1);
-//       expect(recordService.writeReportSummary).toBeCalledTimes(1);
-//     });
-
-//     it('process should success', async () => {
-//       // Given
-//       (recordService.getBankRecords as jest.Mock).mockResolvedValue(
-//         mockBankData
-//       );
-//       (recordService.getProxyRecords as jest.Mock).mockResolvedValue(
-//         mockProxyData
-//       );
-//       (recordService.getMismatchedRecords as jest.Mock).mockImplementation(
-//         () => mockMismatchData
-//       );
-//       (recordService.getUnreconciledRecords as jest.Mock).mockImplementation(
-//         () => mockUnreconciledData
-//       );
-//       (recordService.writeReportStatement as jest.Mock).mockRejectedValue(null);
-//       (recordService.writeReportSummary as jest.Mock).mockResolvedValue(null);
-
-//       // When
-//       await recordController.createReportAndSummary(4);
-
-//       // Then
-//       expect(recordService.getBankRecords).toBeCalledTimes(1);
-//       expect(recordService.getProxyRecords).toBeCalledTimes(1);
-//       expect(recordService.getMismatchedRecords).toBeCalledTimes(1);
-//       expect(recordService.writeReportStatement).toBeCalledTimes(1);
-//       expect(recordService.writeReportSummary).toBeCalledTimes(1);
-//     });
-//   });
-// });
+      // Then
+      expect(recordService.createReportAndSummary).toBeCalledTimes(1);
+    });
+  });
+});

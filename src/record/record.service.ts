@@ -70,18 +70,22 @@ const writeReportSummary = async (
   unreconciledRecords: IUnreconciledRecord[],
   mismatchedRecords: IMismatchedRecords
 ): Promise<void> => {
-  const dateRange = recordUtil.getDateRange([...bankRecords, ...userRecords]);
-
-  const numberSourceProcessed =
-    bankRecords.length - mismatchedRecords.fromBank.length;
-
-  const processedText = recordUtil.getText(
-    dateRange,
-    numberSourceProcessed,
-    unreconciledRecords
-  );
+  if (_.isEmpty(bankRecords) && _.isEmpty(userRecords)) {
+    throw new Error(ERROR_CODE.EMPTY_RECORDS);
+  }
 
   try {
+    const dateRange = recordUtil.getDateRange([...bankRecords, ...userRecords]);
+
+    const numberSourceProcessed =
+      bankRecords.length - mismatchedRecords.fromBank.length;
+
+    const processedText = recordUtil.getText(
+      dateRange,
+      numberSourceProcessed,
+      unreconciledRecords
+    );
+
     const summaryFilepath = recordUtil.getFilePath(summaryPath);
     await textRepository.writeTextFileContents(summaryFilepath, processedText);
   } catch (e) {

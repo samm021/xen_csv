@@ -1,231 +1,237 @@
-// import recordService from '../record.service';
-// import recordRepository from '../record.repository';
-// import { mockRecordData } from '../__mocks__/record.data';
+import recordService from '../record.service';
+import recordUtil from '../record.util';
+import { mockRecordData, mockUnreconciledData } from '../__mocks__/record.data';
+import csvRepository from '../../csv/csv.repository';
+import textRepository from '../../text/text.repository';
+import { ERROR_CODE } from '../../errors/errors.enum';
 
-// jest.mock('../record.repository');
+jest.mock('../../csv/csv.repository');
+jest.mock('../../text/text.repository');
+jest.mock('../record.util');
 
-// describe('recordService', () => {
-//   beforeEach(() => {
-//     expect.hasAssertions();
-//     jest.resetAllMocks();
-//   });
-//   describe('getBankRecords', () => {
-//     it('should get monthly bank data from file', async () => {
-//       // Given
-//       (recordRepository.getFilePath as jest.Mock).mockResolvedValue('');
-//       (recordRepository.getCSVFileContents as jest.Mock).mockResolvedValue(
-//         mockRecordData
-//       );
+describe('recordService', () => {
+  beforeEach(() => {
+    expect.hasAssertions();
+    jest.resetAllMocks();
+  });
 
-//       // When
-//       const result = await recordService.getBankRecords(7);
+  describe('createReportAndSummary', () => {
+    it('should give failed to get bank record error', async () => {
+      // Given
+      (recordUtil.getFilePath as jest.Mock).mockImplementation(() => '');
+      (csvRepository.getCSVFileContents as jest.Mock).mockResolvedValue(
+        mockRecordData
+      );
+      (recordUtil.filteredContentsByMonth as jest.Mock).mockRejectedValueOnce(
+        new Error(ERROR_CODE.FAILED_TO_GET_BANK_RECORDS)
+      );
 
-//       // Then
-//       expect(result).toBeDefined();
-//       expect(result[0]).toBeDefined();
-//     });
+      // When
+      const e = await recordService
+        .createReportAndSummary(7, '', '')
+        .catch(e => e);
 
-//     it('should not get non exist monthly bank data from file', async () => {
-//       // Given
-//       (recordRepository.getFilePath as jest.Mock).mockResolvedValue('');
-//       (recordRepository.getCSVFileContents as jest.Mock).mockResolvedValue([]);
+      // Then
+      expect(e).toBeDefined();
+      expect(e.toString()).toContain(ERROR_CODE.FAILED_TO_GET_BANK_RECORDS);
+      expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
+    });
 
-//       // When
-//       const result = await recordService.getBankRecords(1);
+    it('should give failed to get user record error', async () => {
+      // Given
+      (recordUtil.getFilePath as jest.Mock).mockImplementation(() => '');
+      (csvRepository.getCSVFileContents as jest.Mock).mockResolvedValue(
+        mockRecordData
+      );
+      (recordUtil.filteredContentsByMonth as jest.Mock).mockRejectedValueOnce(
+        new Error(ERROR_CODE.FAILED_TO_GET_USER_RECORDS)
+      );
 
-//       // Then
-//       expect(result).toBeDefined();
-//       expect(result[0]).toBeUndefined();
-//     });
+      // When
+      const e = await recordService
+        .createReportAndSummary(7, '', '')
+        .catch(e => e);
 
-//     it('should get error if failed to read csv file', async () => {
-//       // Given
-//       (recordRepository.getFilePath as jest.Mock).mockResolvedValue('');
-//       (recordRepository.getCSVFileContents as jest.Mock).mockRejectedValue(
-//         new Error()
-//       );
+      // Then
+      expect(e).toBeDefined();
+      expect(e.toString()).toContain(ERROR_CODE.FAILED_TO_GET_USER_RECORDS);
+      expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
+    });
 
-//       // When
-//       const e = await recordService.getBankRecords(3).catch(e => e);
+    it('should give failed to get user empty records error', async () => {
+      // Given
+      (recordUtil.getFilePath as jest.Mock).mockImplementation(() => '');
+      (csvRepository.getCSVFileContents as jest.Mock).mockResolvedValue([]);
+      (recordUtil.filteredContentsByMonth as jest.Mock).mockImplementation(
+        () => []
+      );
+      (recordUtil.getMismatchedRecords as jest.Mock).mockImplementation(() => {
+        return { fromBank: [], fromUser: [] };
+      });
+      (recordUtil.getUnreconciledRecords as jest.Mock).mockImplementation(
+        () => []
+      );
 
-//       // Then
-//       expect(e).toBeDefined();
-//     });
-//   });
+      // When
+      const e = await recordService
+        .createReportAndSummary(7, '', '')
+        .catch(e => e);
 
-//   describe('getProxyRecords', () => {
-//     it('should get monthly proxy data from file', async () => {
-//       // Given
-//       (recordRepository.getFilePath as jest.Mock).mockResolvedValue('');
-//       (recordRepository.getCSVFileContents as jest.Mock).mockResolvedValue(
-//         mockRecordData
-//       );
+      // Then
+      expect(e).toBeDefined();
+      expect(e.toString()).toContain(ERROR_CODE.EMPTY_RECORDS);
+      expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
+      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(csvRepository.writeCSVFileContents).not.toBeCalled();
+      expect(textRepository.writeTextFileContents).not.toBeCalled();
+    });
 
-//       // When
-//       const result = await recordService.getProxyRecords(7);
+    it('should give failed to get user write statement error', async () => {
+      // Given
+      (recordUtil.getFilePath as jest.Mock).mockImplementation(() => '');
+      (csvRepository.getCSVFileContents as jest.Mock).mockResolvedValue(
+        mockRecordData
+      );
+      (recordUtil.filteredContentsByMonth as jest.Mock).mockImplementation(
+        () => mockRecordData
+      );
+      (recordUtil.getMismatchedRecords as jest.Mock).mockImplementation(() => {
+        return { fromBank: mockRecordData, fromUser: mockRecordData };
+      });
+      (recordUtil.getUnreconciledRecords as jest.Mock).mockImplementation(
+        () => mockUnreconciledData
+      );
+      (csvRepository.writeCSVFileContents as jest.Mock).mockRejectedValueOnce(
+        new Error()
+      );
+      (recordUtil.getText as jest.Mock).mockImplementation(() => '');
+      (textRepository.writeTextFileContents as jest.Mock).mockResolvedValueOnce(
+        null
+      );
 
-//       // Then
-//       expect(result).toBeDefined();
-//       expect(result[0]).toBeDefined();
-//     });
+      // When
+      const e = await recordService
+        .createReportAndSummary(7, '', '')
+        .catch(e => e);
 
-//     it('should not get non exist monthly proxy data from file', async () => {
-//       // Given
-//       (recordRepository.getFilePath as jest.Mock).mockResolvedValue('');
-//       (recordRepository.getCSVFileContents as jest.Mock).mockResolvedValue([]);
+      // Then
+      expect(e).toBeDefined();
+      expect(e.toString()).toContain(ERROR_CODE.FAILED_TO_WRITE_STATEMENT);
+      expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
+      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(csvRepository.writeCSVFileContents).toBeCalledTimes(1);
+      expect(textRepository.writeTextFileContents).toBeCalledTimes(1);
+    });
 
-//       // When
-//       const result = await recordService.getProxyRecords(1);
+    it('should give failed to get user write summary error', async () => {
+      // Given
+      (recordUtil.getFilePath as jest.Mock).mockImplementation(() => '');
+      (csvRepository.getCSVFileContents as jest.Mock).mockResolvedValue(
+        mockRecordData
+      );
+      (recordUtil.filteredContentsByMonth as jest.Mock).mockImplementation(
+        () => mockRecordData
+      );
+      (recordUtil.getMismatchedRecords as jest.Mock).mockImplementation(() => {
+        return { fromBank: mockRecordData, fromUser: mockRecordData };
+      });
+      (recordUtil.getUnreconciledRecords as jest.Mock).mockImplementation(
+        () => mockUnreconciledData
+      );
+      (csvRepository.writeCSVFileContents as jest.Mock).mockResolvedValueOnce(
+        null
+      );
+      (recordUtil.getText as jest.Mock).mockImplementation(() => '');
+      (textRepository.writeTextFileContents as jest.Mock).mockRejectedValueOnce(
+        new Error()
+      );
 
-//       // Then
-//       expect(result).toBeDefined();
-//       expect(result[0]).toBeUndefined();
-//     });
+      // When
+      const e = await recordService
+        .createReportAndSummary(7, '', '')
+        .catch(e => e);
 
-//     it('should get error if failed to read csv file', async () => {
-//       // Given
-//       (recordRepository.getFilePath as jest.Mock).mockResolvedValue('');
-//       (recordRepository.getCSVFileContents as jest.Mock).mockRejectedValue(
-//         new Error()
-//       );
+      // Then
+      expect(e).toBeDefined();
+      expect(e.toString()).toContain(ERROR_CODE.FAILED_TO_WRITE_SUMMARY);
+      expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
+      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(csvRepository.writeCSVFileContents).toBeCalledTimes(1);
+      expect(textRepository.writeTextFileContents).toBeCalledTimes(1);
+    });
 
-//       // When
-//       const e = await recordService.getProxyRecords(3).catch(e => e);
+    it('should success writing only summary files', async () => {
+      // Given
+      (recordUtil.getFilePath as jest.Mock).mockImplementation(() => '');
+      (csvRepository.getCSVFileContents as jest.Mock).mockResolvedValue(
+        mockRecordData
+      );
+      (recordUtil.filteredContentsByMonth as jest.Mock).mockImplementation(
+        () => mockRecordData
+      );
+      (recordUtil.getMismatchedRecords as jest.Mock).mockImplementation(() => {
+        return { fromBank: [], fromUser: [] };
+      });
+      (recordUtil.getUnreconciledRecords as jest.Mock).mockImplementation(
+        () => null
+      );
+      (recordUtil.getText as jest.Mock).mockImplementation(() => '');
+      (textRepository.writeTextFileContents as jest.Mock).mockResolvedValueOnce(
+        null
+      );
 
-//       // Then
-//       expect(e).toBeDefined();
-//     });
-//   });
+      // When
+      const e = await recordService
+        .createReportAndSummary(7, '', '')
+        .catch(e => e);
 
-//   describe('getMismatchedRecords', () => {
-//     it('should give unique data if input is not equal', () => {
-//       // Given
-//       const bankData = [mockRecordData[0]];
-//       const proxyData = [{ ...bankData[0], description: 'd' }];
+      // Then
+      expect(e).toBeUndefined();
+      expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
+      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(csvRepository.writeCSVFileContents).not.toBeCalled();
+      expect(textRepository.writeTextFileContents).toBeCalledTimes(1);
+    });
 
-//       // When
-//       const result = recordService.getMismatchedRecords(bankData, proxyData);
+    it('should success writing report and summary files', async () => {
+      // Given
+      (recordUtil.getFilePath as jest.Mock).mockImplementation(() => '');
+      (csvRepository.getCSVFileContents as jest.Mock).mockResolvedValue(
+        mockRecordData
+      );
+      (recordUtil.filteredContentsByMonth as jest.Mock).mockImplementation(
+        () => mockRecordData
+      );
+      (recordUtil.getMismatchedRecords as jest.Mock).mockImplementation(() => {
+        return { fromBank: mockRecordData, fromUser: mockRecordData };
+      });
+      (recordUtil.getUnreconciledRecords as jest.Mock).mockImplementation(
+        () => mockUnreconciledData
+      );
+      (csvRepository.writeCSVFileContents as jest.Mock).mockResolvedValueOnce(
+        null
+      );
+      (recordUtil.getText as jest.Mock).mockImplementation(() => '');
+      (textRepository.writeTextFileContents as jest.Mock).mockResolvedValueOnce(
+        null
+      );
 
-//       // Then
-//       expect(result.fromBank[0]).toBeDefined();
-//       expect(result.fromProxy[0]).toBeDefined();
-//     });
+      // When
+      const e = await recordService
+        .createReportAndSummary(7, '', '')
+        .catch(e => e);
 
-//     it('should not give unique data if input is equal', () => {
-//       // Given
-//       const bankData = [mockRecordData[0]];
-//       const proxyData = [{ ...bankData[0] }];
-
-//       // When
-//       const result = recordService.getMismatchedRecords(bankData, proxyData);
-
-//       // Then
-//       expect(result.fromBank[0]).toBeUndefined();
-//       expect(result.fromProxy[0]).toBeUndefined();
-//     });
-//   });
-
-//   describe('getUnreconciledRecords', () => {
-//     it('should give unreconciled data', () => {
-//       // Given
-//       const data = mockRecordData[0];
-//       const unreconciledData = {
-//         fromBank: [data],
-//         fromProxy: [{ ...data, description: 'd' }]
-//       };
-
-//       // When
-//       const result = recordService.getUnreconciledRecords(unreconciledData);
-
-//       // Then
-//       expect(result).toBeDefined();
-//       expect(result[0].discrepancyCode).toBeDefined();
-//       expect(result[0].remarks).toBeDefined();
-//     });
-
-//     it('should give unreconciled data if similar id not found', () => {
-//       // Given
-//       const data = mockRecordData[0];
-//       const unreconciledData = {
-//         fromBank: [],
-//         fromProxy: [data]
-//       };
-
-//       // When
-//       const result = recordService.getUnreconciledRecords(unreconciledData);
-
-//       // Then
-//       expect(result).toBeDefined();
-//       expect(result[0].discrepancyCode).toEqual('ID_NOT_FOUND');
-//       expect(result[0].remarks).toBeDefined();
-//     });
-//   });
-
-//   describe('writeReportStatement', () => {
-//     it('should returns nothing if success write statement', async () => {
-//       // Given
-//       (recordRepository.getFilePath as jest.Mock).mockResolvedValue('');
-//       (recordRepository.writeCSVFileContents as jest.Mock).mockResolvedValue(
-//         null
-//       );
-
-//       // When
-//       const result = await recordService.writeReportStatement([]);
-
-//       // Then
-//       expect(result).toBeUndefined();
-//     });
-
-//     it('should returns error if failed to write statement', async () => {
-//       // Given
-//       (recordRepository.getFilePath as jest.Mock).mockResolvedValue('');
-//       (recordRepository.writeCSVFileContents as jest.Mock).mockRejectedValue(
-//         new Error()
-//       );
-
-//       // When
-//       const e = await recordService.writeReportStatement([]).catch(e => e);
-
-//       // Then
-//       expect(e).toBeDefined();
-//     });
-//   });
-
-//   describe('writeReportSummary', () => {
-//     it('should returns nothing if success write summary', async () => {
-//       // Given
-//       (recordRepository.getFilePath as jest.Mock).mockResolvedValue('');
-//       (recordRepository.writeTextFileContents as jest.Mock).mockResolvedValue(
-//         null
-//       );
-
-//       // When
-//       const result = await recordService.writeReportSummary([], [], [], {
-//         fromBank: [],
-//         fromProxy: [mockRecordData[0]]
-//       });
-
-//       // Then
-//       expect(result).toBeUndefined();
-//     });
-
-//     it('should returns error if failed to write summary', async () => {
-//       // Given
-//       (recordRepository.getFilePath as jest.Mock).mockResolvedValue('');
-//       (recordRepository.writeTextFileContents as jest.Mock).mockRejectedValue(
-//         new Error()
-//       );
-
-//       // When
-//       const e = await recordService
-//         .writeReportSummary([], [], [], {
-//           fromBank: [],
-//           fromProxy: [mockRecordData[0]]
-//         })
-//         .catch(e => e);
-
-//       // Then
-//       expect(e).toBeDefined();
-//     });
-//   });
-// });
+      // Then
+      expect(e).toBeUndefined();
+      expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
+      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(csvRepository.writeCSVFileContents).toBeCalledTimes(1);
+      expect(textRepository.writeTextFileContents).toBeCalledTimes(1);
+    });
+  });
+});

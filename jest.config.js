@@ -14,7 +14,9 @@ module.exports = {
   },
   collectCoverageFrom: [
     'src/**/*.{ts,js}',
-    '!src/**/*.(interface|constant|type|validator).{ts,js}',
+    '!src/index.{ts,js}',
+    '!src/**/errors.{ts,js}',
+    '!src/**/*.(interface|constants|type|validator|enum).{ts,js}',
     '!**/__mocks__/**',
     '!**/node_modules/**'
   ]
