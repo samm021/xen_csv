@@ -16,7 +16,7 @@ module.exports = {
     'src/**/*.{ts,js}',
     '!src/index.{ts,js}',
     '!src/**/errors.{ts,js}',
-    '!src/**/*.(interface|constants|type|validator|enum).{ts,js}',
+    '!src/**/*.(interface|constants|type|validator|enum|error).{ts,js}',
     '!**/__mocks__/**',
     '!**/node_modules/**'
   ]

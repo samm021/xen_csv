@@ -8,8 +8,10 @@
     "prestart": "tsc",
     "result:delete": "rm ./data/report.csv && rm ./data/summary.txt",
     "result:open": "open ./data/report.csv && open ./data/summary.txt",
-    "test": "jest -w 1  --verbose ",
-    "test:cov": "npm run test -- --coverage"
+    "result:report": "open ./data/report.csv",
+    "result:summary": " open ./data/summary.txt",
+    "test": "jest --verbose ",
+    "test:cov": "npm run test --coverage"
   },
   "keywords": [
     "test",
