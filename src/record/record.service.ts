@@ -70,10 +70,6 @@ const writeReportSummary = async (
   unreconciledRecords: IUnreconciledRecord[],
   mismatchedRecords: IMismatchedRecords
 ): Promise<void> => {
-  if (_.isEmpty(bankRecords) && _.isEmpty(userRecords)) {
-    throw new Error(ERROR_CODE.EMPTY_RECORDS);
-  }
-
   try {
     const dateRange = recordUtil.getDateRange([...bankRecords, ...userRecords]);
 
@@ -102,6 +98,10 @@ const createReportAndSummary = async (
     getBankRecords(month, bankFilename),
     getUserRecords(month, userFilename)
   ]);
+
+  if (_.isEmpty(bankRecords) && _.isEmpty(userRecords)) {
+    throw new Error(ERROR_CODE.EMPTY_RECORDS);
+  }
 
   const mismatchedRecords = recordUtil.getMismatchedRecords(
     bankRecords,

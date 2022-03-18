@@ -58,17 +58,11 @@ describe('recordService', () => {
       expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
     });
 
-    it('should give failed to get user empty records error', async () => {
+    it('should give user empty records error', async () => {
       // Given
       (recordUtil.getFilePath as jest.Mock).mockImplementation(() => '');
       (csvRepository.getCSVFileContents as jest.Mock).mockResolvedValue([]);
       (recordUtil.filteredContentsByMonth as jest.Mock).mockImplementation(
-        () => []
-      );
-      (recordUtil.getMismatchedRecords as jest.Mock).mockImplementation(() => {
-        return { fromBank: [], fromUser: [] };
-      });
-      (recordUtil.getUnreconciledRecords as jest.Mock).mockImplementation(
         () => []
       );
 
@@ -81,8 +75,8 @@ describe('recordService', () => {
       expect(e).toBeDefined();
       expect(e.toString()).toContain(ERROR_CODE.EMPTY_RECORDS);
       expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
-      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
-      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(recordUtil.getMismatchedRecords).not.toBeCalled();
+      expect(recordUtil.getUnreconciledRecords).not.toBeCalled();
       expect(csvRepository.writeCSVFileContents).not.toBeCalled();
       expect(textRepository.writeTextFileContents).not.toBeCalled();
     });
@@ -120,7 +114,7 @@ describe('recordService', () => {
       expect(e.toString()).toContain(ERROR_CODE.FAILED_TO_WRITE_STATEMENT);
       expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
       expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
-      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(recordUtil.getUnreconciledRecords).toBeCalledTimes(1);
       expect(csvRepository.writeCSVFileContents).toBeCalledTimes(1);
       expect(textRepository.writeTextFileContents).toBeCalledTimes(1);
     });
@@ -158,7 +152,7 @@ describe('recordService', () => {
       expect(e.toString()).toContain(ERROR_CODE.FAILED_TO_WRITE_SUMMARY);
       expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
       expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
-      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(recordUtil.getUnreconciledRecords).toBeCalledTimes(1);
       expect(csvRepository.writeCSVFileContents).toBeCalledTimes(1);
       expect(textRepository.writeTextFileContents).toBeCalledTimes(1);
     });
@@ -192,7 +186,7 @@ describe('recordService', () => {
       expect(e).toBeUndefined();
       expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
       expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
-      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(recordUtil.getUnreconciledRecords).toBeCalledTimes(1);
       expect(csvRepository.writeCSVFileContents).not.toBeCalled();
       expect(textRepository.writeTextFileContents).toBeCalledTimes(1);
     });
@@ -229,7 +223,7 @@ describe('recordService', () => {
       expect(e).toBeUndefined();
       expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
       expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
-      expect(recordUtil.getMismatchedRecords).toBeCalledTimes(1);
+      expect(recordUtil.getUnreconciledRecords).toBeCalledTimes(1);
       expect(csvRepository.writeCSVFileContents).toBeCalledTimes(1);
       expect(textRepository.writeTextFileContents).toBeCalledTimes(1);
     });
