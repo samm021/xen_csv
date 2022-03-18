@@ -46,7 +46,7 @@ const getUserRecords = async (
   }
 };
 
-const writeReportStatement = async (
+const writeUnreconciledStatement = async (
   records: IUnreconciledRecord[]
 ): Promise<void> => {
   if (_.isEmpty(records)) {
@@ -113,7 +113,7 @@ const createReportAndSummary = async (
   );
 
   await Promise.all([
-    writeReportStatement(unreconciledRecords),
+    writeUnreconciledStatement(unreconciledRecords),
     writeReportSummary(
       bankRecords,
       userRecords,
