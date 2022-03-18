@@ -1,5 +1,6 @@
 import { recordFormat, writeFormat } from './record.enum';
 
+export const dataPath = 'data/';
 export const reportPath = 'report.csv';
 export const summaryPath = 'summary.txt';
 export const distDir = '/dist/record';

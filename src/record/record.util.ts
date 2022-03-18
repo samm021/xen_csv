@@ -12,11 +12,11 @@ import {
 } from './record.type';
 import { readFormat, recordFormat, RECORD_CODE } from './record.enum';
 import { RecordDiscrepanciesList } from './record.error';
-import { srcDir, distDir } from './record.constants';
+import { srcDir, distDir, dataPath } from './record.constants';
 
 const getFilePath = (fileName: string): string => {
   const dirname = __dirname.replace(srcDir, '').replace(distDir, '');
-  return path.resolve(dirname, `data/${fileName}`);
+  return path.resolve(dirname, `${dataPath}${fileName}`);
 };
 
 const validateData = (data: IBasicRecord): IBasicRecord | undefined => {
