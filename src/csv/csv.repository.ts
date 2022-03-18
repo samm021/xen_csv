@@ -5,7 +5,7 @@ import * as write from 'csv-writer';
 import { ObjectStringifierHeader } from 'csv-writer/src/lib/record';
 import { ERROR_CODE } from '../errors/errors.enum';
 
-const getCSVFileContents = (
+const getCSVFileContents = async (
   fileNamePath: string,
   mapHeaders: (header: string) => string,
   validator: (data: any) => any | undefined
@@ -35,7 +35,7 @@ const getCSVFileContents = (
   });
 };
 
-const writeCSVFileContents = (
+const writeCSVFileContents = async (
   data: any,
   header: ObjectStringifierHeader,
   path: string
@@ -48,7 +48,10 @@ const writeCSVFileContents = (
       })
       .writeRecords(data)
       .then(() => resolve())
-      .catch(e => reject(e));
+      .catch(e => {
+        console.error(e);
+        reject(new Error(ERROR_CODE.FAILED_TO_WRITE_CSV));
+      });
   });
 };
 

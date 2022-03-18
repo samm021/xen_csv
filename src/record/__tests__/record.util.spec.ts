@@ -57,19 +57,6 @@ describe('recordUtil', () => {
       expect(outputData).toBe(undefined);
       expect(outputData).not.toEqual(inputData);
     });
-
-    it('should return undefined if missing property', () => {
-      // Given
-      const inputData = { ...mockRecordData[0] };
-      delete inputData.description;
-
-      // When
-      const outputData = recordUtil.validateData(inputData);
-
-      // Then
-      expect(outputData).toBe(undefined);
-      expect(outputData).not.toEqual(inputData);
-    });
   });
 
   describe('mapHeaders', () => {

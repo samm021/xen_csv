@@ -1,4 +1,6 @@
 enum ERROR_CODE {
+  FAILED_TO_WRITE_CSV = 'FAILED_TO_WRITE_CSV',
+  FAILED_TO_WRITE_TXT = 'FAILED_TO_WRITE_TXT',
   INVALID_EXTENSION = 'INVALID_EXTENSION',
   DIRTY_DATA = 'DIRTY_DATA',
   EMPTY_RECORDS = 'EMPTY_RECORDS',
@@ -9,6 +11,12 @@ enum ERROR_CODE {
 }
 
 const errorsList = {
+  [ERROR_CODE.FAILED_TO_WRITE_CSV]: {
+    message: 'Failed to write csv file'
+  },
+  [ERROR_CODE.FAILED_TO_WRITE_TXT]: {
+    message: 'Failed to write text file'
+  },
   [ERROR_CODE.INVALID_EXTENSION]: {
     message: 'Invalid file extension'
   },
