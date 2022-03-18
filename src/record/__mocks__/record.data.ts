@@ -1,3 +1,6 @@
+import { IUnreconciledRecord } from '../record.type';
+import { RECORD_CODE } from '../record.enum';
+
 export const mockRecordData = [
   { date: '2021-07-01', id: 'zoap', amount: 69, description: 'C' },
   { date: '2021-07-04', id: 'zogn', amount: 86, description: 'E' },
@@ -17,10 +20,10 @@ export const mockMismatchData = {
   fromUser: [mockRecordData[1]]
 };
 
-export const mockUnreconciledData = [
+export const mockUnreconciledData: IUnreconciledRecord[] = [
   {
     ...mockRecordData[0],
-    discrepancyCode: 'AMOUNT_NOT_MATCHED',
+    discrepancyCode: RECORD_CODE.AMOUNT_NOT_MATCHED,
     remarks: 'REMARKS'
   }
 ];

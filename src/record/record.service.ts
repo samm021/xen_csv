@@ -1,5 +1,10 @@
 import _ from 'lodash';
-import { writeHeaders, reportPath, summaryPath } from './record.constants';
+import {
+  writeHeaders,
+  reportPath,
+  summaryPath,
+  notFound
+} from './record.constants';
 import {
   IBasicRecord,
   IBankRecord,
@@ -100,7 +105,8 @@ const createReportAndSummary = async (
   ]);
 
   if (_.isEmpty(bankRecords) && _.isEmpty(userRecords)) {
-    throw new Error(ERROR_CODE.EMPTY_RECORDS);
+    console.info(notFound, month);
+    return;
   }
 
   const mismatchedRecords = recordUtil.getMismatchedRecords(

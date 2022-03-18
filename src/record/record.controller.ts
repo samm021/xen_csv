@@ -1,6 +1,7 @@
 import { month } from './record.type';
 import recordService from './record.service';
 import { reportError } from '../errors/errors';
+import { done } from './record.constants';
 
 const createReportAndSummary = async (
   month: month,
@@ -13,7 +14,7 @@ const createReportAndSummary = async (
       bankFilename,
       userFilename
     );
-    console.info('> Done processing data!');
+    console.info(done);
   } catch (e) {
     reportError(e);
   }

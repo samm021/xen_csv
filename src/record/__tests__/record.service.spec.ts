@@ -58,7 +58,7 @@ describe('recordService', () => {
       expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
     });
 
-    it('should give user empty records error', async () => {
+    it('should return early with no result/error if month records is not found', async () => {
       // Given
       (recordUtil.getFilePath as jest.Mock).mockImplementation(() => '');
       (csvRepository.getCSVFileContents as jest.Mock).mockResolvedValue([]);
@@ -72,8 +72,7 @@ describe('recordService', () => {
         .catch(e => e);
 
       // Then
-      expect(e).toBeDefined();
-      expect(e.toString()).toContain(ERROR_CODE.EMPTY_RECORDS);
+      expect(e).toBeUndefined();
       expect(csvRepository.getCSVFileContents).toBeCalledTimes(2);
       expect(recordUtil.getMismatchedRecords).not.toBeCalled();
       expect(recordUtil.getUnreconciledRecords).not.toBeCalled();
